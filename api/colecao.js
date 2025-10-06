@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://doctorshoes.vtexcommercestable.com.br/api/catalog_system/pub/products/search?fq=H:${id}`
+      `https://doctorshoes.vtexcommercestable.com.br/api/catalog_system/pub/products/search?fq=H:${id}&O=OrderByTopSaleDESC`
     );
 
     if (!response.ok) {
