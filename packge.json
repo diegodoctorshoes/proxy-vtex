@@ -1,28 +1,14 @@
 {
   "name": "onesignal-push",
   "version": "1.0.0",
-  "description": "Servidor Node.js para envio de push notifications via OneSignal API",
+  "description": "Servidor Node.js puro para envio de push notifications via OneSignal API",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start": "node index.js"
   },
-  "keywords": [
-    "onesignal",
-    "push-notification",
-    "nodejs",
-    "express",
-    "api"
-  ],
-  "author": "Diego - Doctor Shoes",
-  "license": "MIT",
   "dependencies": {
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.1"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.7"
+    "dotenv": "^16.4.5"
   }
 }
