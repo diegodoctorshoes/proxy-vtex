@@ -7,7 +7,7 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-app.post("/send-push", async (req, res) => {
+app.post("/push", async (req, res) => {
   try {
     os_v2_app_cqzfudb3mzgutn3li4dtulysy5ofm3jbc4aezbvnxnfxaqidfwlcp6tezaxq7pxuqurz3wnlpkgkwhzajecchlkg44otdp5uiavbjna
     const { ONESIGNAL_APP_ID, ONESIGNAL_API_KEY } = process.env;
