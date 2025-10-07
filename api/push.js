@@ -1,52 +1,64 @@
-import axios from "axios";
-
 export default async function handler(req, res) {
-    // libera CORS para qualquer origem (ou restrinja apenas para doctorshoes.com.br)
+    // CORS básico
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // responde a requisições OPTIONS (pré-flight)
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
-    // só permite método GET
     if (req.method !== "GET") {
         return res.status(405).json({ error: "Método não permitido. Use GET." });
     }
 
     try {
-        // monta o payload do push
+        const appId = process.env.ONESIGNAL_APP_ID;
+        const apiKey = process.env.ONESIGNAL_API_KEY;
+
+        // ⚠️ Verifica variáveis obrigatórias
+        if (!appId || !apiKey) {
+            return res.status(500).json({
+                error: "Variáveis de ambiente ausentes",
+                details: "Defina ONESIGNAL_APP_ID e ONESIGNAL_API_KEY no painel da Vercel",
+            });
+        }
+
         const payload = {
-            app_id: process.env.ONESIGNAL_APP_ID,
+            app_id: appId,
             template_id: "3cbca2af-6d34-4814-a2a8-ae14cb97c95a",
-            included_segments: ["All"], // envia para todos os inscritos
+            included_segments: ["All"],
         };
 
-        // faz a requisição para o OneSignal
-        const response = await axios.post(
-            "https://api.onesignal.com/notifications",
-            payload,
-            {
-                headers: {
-                    "Content-Type": "application/json; charset=utf-8",
-                    Authorization: `Basic ${process.env.ONESIGNAL_API_KEY}`,
-                },
-            }
-        );
+        // Usa fetch nativo da Vercel (sem axios)
+        const response = await fetch("https://api.onesignal.com/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8",
+                Authorization: `Basic ${apiKey}`,
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error: "Erro ao enviar push",
+                details: data,
+            });
+        }
 
         return res.status(200).json({
             success: true,
             message: "Push enviado com sucesso!",
-            data: response.data,
+            data,
         });
     } catch (error) {
-        console.error("Erro ao enviar push:", error.response?.data || error.message);
-
+        console.error("Erro ao enviar push:", error);
         return res.status(500).json({
-            error: "Erro ao enviar push",
-            details: error.response?.data || error.message,
+            error: "Erro interno do servidor",
+            details: error.message,
         });
     }
 }
