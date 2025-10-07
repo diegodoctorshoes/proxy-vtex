@@ -13,8 +13,8 @@ export default async function handler(req, res) {
     }
 
     try {
-        const appId = '14325a0c-3b66-4d49-b76b-47073a2f12c7';
-        const apiKey = 'os_v2_app_cqzfudb3mzgutn3li4dtulysy5ofm3jbc4aezbvnxnfxaqidfwlcp6tezaxq7pxuqurz3wnlpkgkwhzajecchlkg44otdp5uiavbjna';
+        const appId = process.env.ONESIGNAL_APP_ID;
+        const apiKey = process.env.ONESIGNAL_API_KEY;
 
         if (!appId || !apiKey) {
             return res.status(500).json({
