@@ -1,77 +1,52 @@
-import http from "http";
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const PORT = process.env.PORT || 3000;
-
-const server = http.createServer(async (req, res) => {
-    // Permitir CORS (caso o endpoint seja chamado do navegador)
+export default async function handler(req, res) {
+    // libera CORS para qualquer origem (ou restrinja apenas para doctorshoes.com.br)
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Requisição de pré-verificação (CORS preflight)
+    // responde a requisições OPTIONS (pré-flight)
     if (req.method === "OPTIONS") {
-        res.writeHead(200);
-        res.end();
-        return;
+        return res.status(200).end();
     }
 
-    if (req.url === "/psuh" && req.method === "POST") {
-        try {
-            let body = "";
-
-            req.on("data", chunk => {
-                body += chunk.toString();
-            });
-
-            req.on("end", async () => {
-                const data = body ? JSON.parse(body) : {};
-
-                const payload = {
-                    app_id: process.env.ONESIGNAL_APP_ID,
-                    template_id: "3cbca2af-6d34-4814-a2a8-ae14cb97c95a",
-                    included_segments: ["All"],
-                };
-
-                const response = await axios.post(
-                    "https://api.onesignal.com/notifications",
-                    payload,
-                    {
-                        headers: {
-                            "Content-Type": "application/json; charset=utf-8",
-                            Authorization: `Basic ${process.env.ONESIGNAL_API_KEY}`,
-                        },
-                    }
-                );
-
-                res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(
-                    JSON.stringify({
-                        success: true,
-                        message: "Push enviado com sucesso!",
-                        data: response.data,
-                    })
-                );
-            });
-        } catch (error) {
-            console.error("Erro ao enviar push:", error.response?.data || error.message);
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(
-                JSON.stringify({
-                    success: false,
-                    error: error.response?.data || error.message,
-                })
-            );
-        }
-    } else {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Endpoint não encontrado" }));
+    // só permite método GET
+    if (req.method !== "GET") {
+        return res.status(405).json({ error: "Método não permitido. Use GET." });
     }
-});
 
-server.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
+    try {
+        // monta o payload do push
+        const payload = {
+            app_id: process.env.ONESIGNAL_APP_ID,
+            template_id: "3cbca2af-6d34-4814-a2a8-ae14cb97c95a",
+            included_segments: ["All"], // envia para todos os inscritos
+        };
+
+        // faz a requisição para o OneSignal
+        const response = await axios.post(
+            "https://api.onesignal.com/notifications",
+            payload,
+            {
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    Authorization: `Basic ${process.env.ONESIGNAL_API_KEY}`,
+                },
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: "Push enviado com sucesso!",
+            data: response.data,
+        });
+    } catch (error) {
+        console.error("Erro ao enviar push:", error.response?.data || error.message);
+
+        return res.status(500).json({
+            error: "Erro ao enviar push",
+            details: error.response?.data || error.message,
+        });
+    }
+}
