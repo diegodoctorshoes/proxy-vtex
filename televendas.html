@@ -91,6 +91,7 @@
                 <div class="sku-row">
                     <input type="number" class="sku-input" placeholder="ID do SKU" required />
                     <input type="number" class="qty-input" placeholder="Qtd" min="1" value="1" required />
+                    <input type="text" class="coupon-input" placeholder="Cupom" required />
                 </div>
             </div>
 
@@ -143,8 +144,10 @@
             const baseUrl = 'https://www.doctorshoes.com.br/checkout/cart/add';
             const itemsQuery = items.join('&');
             const utms = `utm_source=vtexSocialSelling&utm_campaign=${encodeURIComponent(sellerName)}`;
+            const coupon = document.getElementById('coupon').value.trim();
+            const couponParam = coupon ? `&coupon=${encodeURIComponent(coupon)}` : '';
 
-            const finalLink = `${baseUrl}?${itemsQuery}&${utms}`;
+            const finalLink = `${baseUrl}?${itemsQuery}&${utms}${couponParam}`;
             document.getElementById('resultLink').value = finalLink;
         });
     </script>
