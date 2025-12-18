@@ -91,12 +91,10 @@
                 <div class="sku-row">
                     <input type="number" class="sku-input" placeholder="ID do SKU" required />
                     <input type="number" class="qty-input" placeholder="Qtd" min="1" value="1" required />
-                    <input type="text" class="coupon-input" placeholder="Cupom" required />
                 </div>
             </div>
-
             <button type="button" class="add-btn" onclick="addSkuField()">+ Adicionar SKU</button>
-
+            <input type="text" id="coupon" placeholder="Ex: OLA10" />
             <button type="submit" class="submit-btn">Gerar link do carrinho</button>
         </form>
 
@@ -122,6 +120,9 @@
             e.preventDefault();
 
             const sellerName = document.getElementById('sellerName').value.trim();
+            const couponInput = document.getElementById('coupon');
+            const coupon = couponInput ? couponInput.value.trim() : '';
+
             const skuInputs = document.querySelectorAll('.sku-input');
             const qtyInputs = document.querySelectorAll('.qty-input');
 
@@ -144,7 +145,6 @@
             const baseUrl = 'https://www.doctorshoes.com.br/checkout/cart/add';
             const itemsQuery = items.join('&');
             const utms = `utm_source=vtexSocialSelling&utm_campaign=${encodeURIComponent(sellerName)}`;
-            const coupon = document.getElementById('coupon').value.trim();
             const couponParam = coupon ? `&coupon=${encodeURIComponent(coupon)}` : '';
 
             const finalLink = `${baseUrl}?${itemsQuery}&${utms}${couponParam}`;
