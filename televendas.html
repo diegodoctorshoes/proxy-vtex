@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Gerador de Link de Carrinho VTEX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .sku-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .add-btn {
+            margin-top: 12px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background: #0070f3;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 8px;
+            resize: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Gerador de Link de Carrinho VTEX</h1>
+
+        <form id="cartForm">
+            <label>Nome do vendedor</label>
+            <input type="text" id="sellerName" placeholder="Ex: João Silva" required />
+
+            <label>SKUs e Quantidades</label>
+            <div id="skuContainer">
+                <div class="sku-row">
+                    <input type="number" class="sku-input" placeholder="ID do SKU" required />
+                    <input type="number" class="qty-input" placeholder="Qtd" min="1" value="1" required />
+                </div>
+            </div>
+
+            <button type="button" class="add-btn" onclick="addSkuField()">+ Adicionar SKU</button>
+
+            <button type="submit" class="submit-btn">Gerar link do carrinho</button>
+        </form>
+
+        <div class="result">
+            <label>Link gerado (copiar e colar)</label>
+            <textarea id="resultLink" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        function addSkuField() {
+            const container = document.getElementById('skuContainer');
+            const div = document.createElement('div');
+            div.className = 'sku-row';
+            div.innerHTML = `
+        <input type="number" class="sku-input" placeholder="ID do SKU" required />
+        <input type="number" class="qty-input" placeholder="Qtd" min="1" value="1" required />
+      `;
+            container.appendChild(div);
+        }
+
+        document.getElementById('cartForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const sellerName = document.getElementById('sellerName').value.trim();
+            const skuInputs = document.querySelectorAll('.sku-input');
+            const qtyInputs = document.querySelectorAll('.qty-input');
+
+            let items = [];
+
+            skuInputs.forEach((skuInput, index) => {
+                const sku = skuInput.value;
+                const qty = qtyInputs[index].value;
+
+                if (sku && qty && qty > 0) {
+                    items.push(`sku=${sku}&qty=${qty}&seller=1`);
+                }
+            });
+
+            if (items.length === 0) {
+                alert('Adicione pelo menos um SKU válido');
+                return;
+            }
+
+            const baseUrl = 'https://www.doctorshoes.com.br/checkout/cart/add';
+            const itemsQuery = items.join('&');
+            const utms = `utm_source=vtexSocialSelling&utm_campaign=${encodeURIComponent(sellerName)}`;
+
+            const finalLink = `${baseUrl}?${itemsQuery}&${utms}`;
+            document.getElementById('resultLink').value = finalLink;
+        });
+    </script>
+</body>
+
+</html>
